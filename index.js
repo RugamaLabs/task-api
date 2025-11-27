@@ -16,6 +16,9 @@ const pool = new Pool({
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 // Ruta de prueba
@@ -124,6 +127,16 @@ app.delete('/tasks/:id', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al eliminar la tarea' });
+  }
+});
+
+// --- VERIFICACIÓN DE INICIO ---
+pool.query('SELECT NOW()', (err, res) => {
+  if (err) {
+    console.error('❌ ERROR CRÍTICO: No se pudo conectar a la BD', err);
+    process.exit(1); // Matar el servidor si no hay BD
+  } else {
+    console.log('✅ CONEXIÓN EXITOSA A BASE DE DATOS AWS:', res.rows[0].now);
   }
 });
 
